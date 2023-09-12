@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en" xmlns:v-model.lazy="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script th:src = "@{/js/vue.min.js}"></script>
+    <script th:src = "@{/js/jquery-3.6.1.min.js}"></script>
+    <script th:src = "@{/js/axios.min.js}"></script>
+    <script th:src = "@{/js/bootstrap.bundle.min.js}"></script>
+    <script th:src = "@{/js/bootstrap.min.js}"></script>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+    <title>Ubike 區域 即時資訊</title>
+</head>
+<body>
+    <fieldset id = "app">
+        <legend>臺北市公共自行車區域查詢</legend>
+        <div>
+            <div>區域</div>
+            <input type="text" v-model.lazy="sarea" class="text text-primary"/>
+            <button v-on:click="ubikeqryHandler" class="btn-success"> 查詢 </button>
+            <div>您查詢的區域 ： {{sarea}}</div>
+            <br>
+
+        </div>
+        <fieldset>
+            <legend>{{sarea}} 區域及時狀態</legend>
+            <table class = "table table-dark table-hover">
+                <thead>
+                    <tr>
+                        <td>區域</td>
+                        <td>場站</td>
+                        <td>總停車數</td>
+                        <td>目前車數</td>
+                        <td>空位數</td>
+                        <td>時間點</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in result">
+                        <td>{{item.sarea}}</td>
+                        <td>{{item.sna}}</td>
+                        <td>{{item.tot}}</td>
+                        <td>{{item.sbi}}</td>
+                        <td>{{item.bemp}}</td>
+                        <td>{{item.srcUpdateTime}}</td>
+
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+    </fieldset>
+
+    <script>
+        // 建構一個Vue Instance
+        //配置一個Vue物件初始化 使用JS物件
+        var app = new Vue(
+            //配置初始化物件
+            {
+                //資料模組
+                data:{
+                    sarea:'',
+                    result:[]
+                },
+                //事件程序或者函數模組
+                methods:{
+                    ubikeqryHandler:function(){
+                        //console.log(this.sarea);
+                        //TODO進行非同步處理 指向自行定義的服務端點
+                        let ubikeService = '../api/ubike/'+this.sarea+'/rawdata';
+                        console.log(ubikeService);
+                        //採用axios framework進行非同步(ajax)
+                        axios.get(ubikeService)
+                        .then(res => {
+                            console.log(res);
+                            this.result = res.data;
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                    }
+                }
+            }
+        );
+        app.$mount('#app');
+    </script>
+</body>
+</html>
